@@ -36,10 +36,24 @@ func (s *Slice[T]) Get(index int) (T, error) {
 func (s *Slice[T]) Append(value T) {
 	if s.size == s.capacity {
 		fmt.Println("size & capacity is same, full capacity is uzed, append failed")
+		s.resize()
 	}
 	s.array = append(s.array, value)
 	s.size++
 	s.print()
+}
+
+// resize function, to increase the capacity of the slice to double when capacity == size
+func (s *Slice[T]) resize() {
+	newCapacity := s.capacity * 2
+	if newCapacity == 0 {
+		newCapacity = 1
+	}
+
+	newArr := make([]T, s.size, newCapacity)
+	copy(newArr, s.array)
+	s.array = newArr
+	s.capacity = newCapacity
 }
 
 // print to display the slice contents
@@ -54,4 +68,39 @@ func (s *Slice[T]) Size() int {
 
 func (s *Slice[T]) Capacity() int {
 	return s.capacity
+}
+
+// Remove removes an element at a specific index and shifts elements left
+func (s *Slice[T]) Remove(index int) error {
+	if index < 0 || index >= s.size {
+		return errors.New("index out of bound")
+	}
+
+	s.array = append(s.array[:index], s.array[index+1:]...)
+	s.size--
+
+	return nil
+}
+
+// Insert: Adds an element at a specific index.
+// Clear: Removes all elements.
+// Contains: Checks if a value exists in the slice.
+// Find: Finds the index of a specific element.
+// Extend: Appends elements from another slice.
+// Reverse: Reverses the order of elements.
+// Sort: Sorts elements using a custom comparator.
+// Copy: Creates a deep copy of the slice.
+func (s *Slice[T]) Insert(index int, Value T) error {
+
+	if index < 0 || index > s.size {
+		return errors.New("index out of bounds")
+	}
+
+	if s.size == s.capacity {
+		s.resize()
+	}
+
+	s.array = append(s.array[:index], append([]T{Value}, s.array[index:]...)...)
+	s.size++
+	return nil
 }
