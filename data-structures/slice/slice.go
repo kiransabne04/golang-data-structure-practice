@@ -3,6 +3,7 @@ package slice
 import (
 	"errors"
 	"fmt"
+	"reflect"
 )
 
 // we will try to implement custom slice & its functionality based on the top of array.
@@ -83,13 +84,6 @@ func (s *Slice[T]) Remove(index int) error {
 }
 
 // Insert: Adds an element at a specific index.
-// Clear: Removes all elements.
-// Contains: Checks if a value exists in the slice.
-// Find: Finds the index of a specific element.
-// Extend: Appends elements from another slice.
-// Reverse: Reverses the order of elements.
-// Sort: Sorts elements using a custom comparator.
-// Copy: Creates a deep copy of the slice.
 func (s *Slice[T]) Insert(index int, Value T) error {
 
 	if index < 0 || index > s.size {
@@ -103,4 +97,57 @@ func (s *Slice[T]) Insert(index int, Value T) error {
 	s.array = append(s.array[:index], append([]T{Value}, s.array[index:]...)...)
 	s.size++
 	return nil
+}
+
+// Clear: Removes all elements without deallocating the underlying array.
+func (s *Slice[T]) Clear() {
+
+	s.array = s.array[:0]
+	s.size = 0
+}
+
+// Contains: Checks if a value exists in the slice.
+func (s *Slice[T]) Contains(value T) bool {
+
+	for _, v := range s.array {
+		// we are using reflect package since our value & slice is of generic Type. to avoid using reflect, we can add the constraint to slice struct called "comparable", but it will restrict slice funtionality to other ADT like maps, etc
+		if reflect.DeepEqual(v, value) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Find: Finds the index of a specific element.
+func (s *Slice[T]) Find(value T) int {
+	for i, v := range s.array {
+		if reflect.DeepEqual(v, value) {
+			return i
+		}
+	}
+	return -1
+}
+
+// Extend: Appends elements from another slice.
+func (s *Slice[T]) Extend(otherArr *Slice[T]) {
+	for _, v := range otherArr.array {
+		s.Append(v)
+	}
+}
+
+// Reverse: Reverses the order of elements.
+func (s *Slice[T]) Reverse() {
+
+	for i, j := 0, len(s.array)-1; i < j; i, j = i+1, j-1 {
+		s.array[i], s.array[j] = s.array[j], s.array[i]
+	}
+	s.print()
+}
+
+// Copy: Creates a deep copy of the slice.
+func (s *Slice[T]) Copy() *Slice[T] {
+	newSlice := NewSlice[T](s.size, s.capacity)
+	copy(newSlice.array, s.array)
+	return newSlice
 }

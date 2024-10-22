@@ -216,10 +216,11 @@ func TestInsert(t *testing.T) {
 
 // clear Removes all elements
 func TestClear(t *testing.T) {
-	nums := NewSlice[int](0, 9)
+	nums := NewSlice[int](0, 0)
 	nums.Append(10)
 	nums.Append(20)
 	nums.Append(30)
+	nums.Append(40)
 
 	nums.Clear()
 
@@ -307,5 +308,35 @@ func TestReverse(t *testing.T) {
 		if err != nil || val != expected[i] {
 			t.Errorf("Expected element at index %d to be %d, but got %d", i, expected[i], val)
 		}
+	}
+}
+
+func TestCopy(t *testing.T) {
+	nums := NewSlice[int](0, 100)
+	nums.Append(10)
+	nums.Append(20)
+	nums.Append(30)
+
+	copiedNum := nums.Copy()
+
+	if copiedNum.Size() != nums.Size() {
+		t.Errorf("expected copied size and num size to be same fater creating new copy, should have been %d but got %d\n", nums.Size(), copiedNum.Size())
+	}
+
+	//checking the elements in the copied slice
+	for i := 0; i < nums.Size(); i++ {
+		originalVal, _ := nums.Get(i)
+		copiedVal, _ := copiedNum.Get(i)
+
+		if originalVal != copiedVal {
+			t.Errorf("Expected copied element at index %d to be %d, but got %d", i, originalVal, copiedVal)
+		}
+	}
+
+	// modify the copied slice & check if the original slice is also mutated?
+	copiedNum.Append(40)
+	if copiedNum.Size() == nums.Size() {
+		t.Errorf("Expected copied slice size to differ after modification, but they are the same")
+
 	}
 }
